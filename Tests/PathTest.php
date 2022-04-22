@@ -23,7 +23,10 @@ class PathTest extends TestCase
 {
     protected $storedEnv = [];
 
-    protected function setUp(): void
+    /**
+     * @return void
+     */
+    protected function setUp()
     {
         $this->storedEnv['HOME'] = getenv('HOME');
         $this->storedEnv['HOMEDRIVE'] = getenv('HOMEDRIVE');
@@ -34,7 +37,10 @@ class PathTest extends TestCase
         putenv('HOMEPATH=');
     }
 
-    protected function tearDown(): void
+    /**
+     * @return void
+     */
+    protected function tearDown()
     {
         putenv('HOME='.$this->storedEnv['HOME']);
         putenv('HOMEDRIVE='.$this->storedEnv['HOMEDRIVE']);
@@ -166,8 +172,10 @@ class PathTest extends TestCase
 
     /**
      * @dataProvider provideCanonicalizationTests
+     * @param string $path
+     * @param string $canonicalized
      */
-    public function testCanonicalize(string $path, string $canonicalized)
+    public function testCanonicalize($path, $canonicalized)
     {
         $this->assertSame($canonicalized, Path::canonicalize($path));
     }
@@ -227,8 +235,10 @@ class PathTest extends TestCase
 
     /**
      * @dataProvider provideGetDirectoryTests
+     * @param string $path
+     * @param string $directory
      */
-    public function testGetDirectory(string $path, string $directory)
+    public function testGetDirectory($path, $directory)
     {
         $this->assertSame($directory, Path::getDirectory($path));
     }
@@ -258,8 +268,11 @@ class PathTest extends TestCase
 
     /**
      * @dataProvider provideGetFilenameWithoutExtensionTests
+     * @param string $path
+     * @param string|null $extension
+     * @param string $filename
      */
-    public function testGetFilenameWithoutExtension(string $path, ?string $extension, string $filename)
+    public function testGetFilenameWithoutExtension($path, $extension, $filename)
     {
         $this->assertSame($filename, Path::getFilenameWithoutExtension($path, $extension));
     }
@@ -283,8 +296,11 @@ class PathTest extends TestCase
 
     /**
      * @dataProvider provideGetExtensionTests
+     * @param string $path
+     * @param bool $forceLowerCase
+     * @param string $extension
      */
-    public function testGetExtension(string $path, bool $forceLowerCase, string $extension)
+    public function testGetExtension($path, $forceLowerCase, $extension)
     {
         $this->assertSame($extension, Path::getExtension($path, $forceLowerCase));
     }
@@ -330,8 +346,11 @@ class PathTest extends TestCase
      * @dataProvider provideHasExtensionTests
      *
      * @param string|string[]|null $extension
+     * @param bool $hasExtension
+     * @param string $path
+     * @param bool $ignoreCase
      */
-    public function testHasExtension(bool $hasExtension, string $path, $extension, bool $ignoreCase)
+    public function testHasExtension($hasExtension, $path, $extension, $ignoreCase)
     {
         $this->assertSame($hasExtension, Path::hasExtension($path, $extension, $ignoreCase));
     }
@@ -354,8 +373,11 @@ class PathTest extends TestCase
 
     /**
      * @dataProvider provideChangeExtensionTests
+     * @param string $path
+     * @param string $extension
+     * @param string $pathExpected
      */
-    public function testChangeExtension(string $path, string $extension, string $pathExpected)
+    public function testChangeExtension($path, $extension, $pathExpected)
     {
         $this->assertSame($pathExpected, Path::changeExtension($path, $extension));
     }
@@ -389,16 +411,20 @@ class PathTest extends TestCase
 
     /**
      * @dataProvider provideIsAbsolutePathTests
+     * @param string $path
+     * @param bool $isAbsolute
      */
-    public function testIsAbsolute(string $path, bool $isAbsolute)
+    public function testIsAbsolute($path, $isAbsolute)
     {
         $this->assertSame($isAbsolute, Path::isAbsolute($path));
     }
 
     /**
      * @dataProvider provideIsAbsolutePathTests
+     * @param string $path
+     * @param bool $isAbsolute
      */
-    public function testIsRelative(string $path, bool $isAbsolute)
+    public function testIsRelative($path, $isAbsolute)
     {
         $this->assertSame(!$isAbsolute, Path::isRelative($path));
     }
@@ -431,8 +457,10 @@ class PathTest extends TestCase
 
     /**
      * @dataProvider provideGetRootTests
+     * @param string $path
+     * @param string $root
      */
-    public function testGetRoot(string $path, string $root)
+    public function testGetRoot($path, $root)
     {
         $this->assertSame($root, Path::getRoot($path));
     }
@@ -527,8 +555,11 @@ class PathTest extends TestCase
 
     /**
      * @dataProvider provideMakeAbsoluteTests
+     * @param string $relativePath
+     * @param string $basePath
+     * @param string $absolutePath
      */
-    public function testMakeAbsolute(string $relativePath, string $basePath, string $absolutePath)
+    public function testMakeAbsolute($relativePath, $basePath, $absolutePath)
     {
         $this->assertSame($absolutePath, Path::makeAbsolute($relativePath, $basePath));
     }
@@ -577,8 +608,10 @@ class PathTest extends TestCase
 
     /**
      * @dataProvider provideAbsolutePathsWithDifferentRoots
+     * @param string $basePath
+     * @param string $absolutePath
      */
-    public function testMakeAbsoluteDoesNotFailIfDifferentRoot(string $basePath, string $absolutePath)
+    public function testMakeAbsoluteDoesNotFailIfDifferentRoot($basePath, $absolutePath)
     {
         // If a path in partition D: is passed, but $basePath is in partition
         // C:, the path should be returned unchanged
@@ -680,8 +713,11 @@ class PathTest extends TestCase
 
     /**
      * @dataProvider provideMakeRelativeTests
+     * @param string $absolutePath
+     * @param string $basePath
+     * @param string $relativePath
      */
-    public function testMakeRelative(string $absolutePath, string $basePath, string $relativePath)
+    public function testMakeRelative($absolutePath, $basePath, $relativePath)
     {
         $this->assertSame($relativePath, Path::makeRelative($absolutePath, $basePath));
     }
@@ -703,8 +739,10 @@ class PathTest extends TestCase
 
     /**
      * @dataProvider provideAbsolutePathsWithDifferentRoots
+     * @param string $absolutePath
+     * @param string $basePath
      */
-    public function testMakeRelativeFailsIfDifferentRoot(string $absolutePath, string $basePath)
+    public function testMakeRelativeFailsIfDifferentRoot($absolutePath, $basePath)
     {
         $this->expectException(\InvalidArgumentException::class);
 
@@ -722,8 +760,10 @@ class PathTest extends TestCase
 
     /**
      * @dataProvider provideIsLocalTests
+     * @param string $path
+     * @param bool $isLocal
      */
-    public function testIsLocal(string $path, bool $isLocal)
+    public function testIsLocal($path, $isLocal)
     {
         $this->assertSame($isLocal, Path::isLocal($path));
     }
@@ -842,8 +882,9 @@ class PathTest extends TestCase
      * @dataProvider provideGetLongestCommonBasePathTests
      *
      * @param string[] $paths
+     * @param string|null $basePath
      */
-    public function testGetLongestCommonBasePath(array $paths, ?string $basePath)
+    public function testGetLongestCommonBasePath($paths, $basePath)
     {
         $this->assertSame($basePath, Path::getLongestCommonBasePath(...$paths));
     }
@@ -931,8 +972,11 @@ class PathTest extends TestCase
 
     /**
      * @dataProvider provideIsBasePathTests
+     * @param string $path
+     * @param string $ofPath
+     * @param bool $result
      */
-    public function testIsBasePath(string $path, string $ofPath, bool $result)
+    public function testIsBasePath($path, $ofPath, $result)
     {
         $this->assertSame($result, Path::isBasePath($path, $ofPath));
     }
@@ -1010,8 +1054,9 @@ class PathTest extends TestCase
 
     /**
      * @dataProvider provideJoinTests
+     * @param mixed[] $paths
      */
-    public function testJoin(array $paths, $result)
+    public function testJoin($paths, $result)
     {
         $this->assertSame($result, Path::join(...$paths));
     }

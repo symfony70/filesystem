@@ -30,12 +30,12 @@ final class Path
     /**
      * The number of buffer entries that triggers a cleanup operation.
      */
-    private const CLEANUP_THRESHOLD = 1250;
+    const CLEANUP_THRESHOLD = 1250;
 
     /**
      * The buffer size after the cleanup operation.
      */
-    private const CLEANUP_SIZE = 1000;
+    const CLEANUP_SIZE = 1000;
 
     /**
      * Buffers input/output of {@link canonicalize()}.
@@ -86,7 +86,7 @@ final class Path
 
         $path = self::normalize($path);
 
-        [$root, $pathWithoutRoot] = self::split($path);
+        list($root, $pathWithoutRoot) = self::split($path);
 
         $canonicalParts = self::findCanonicalParts($root, $pathWithoutRoot);
 
@@ -516,8 +516,8 @@ final class Path
         $path = self::canonicalize($path);
         $basePath = self::canonicalize($basePath);
 
-        [$root, $relativePath] = self::split($path);
-        [$baseRoot, $relativeBasePath] = self::split($basePath);
+        list($root, $relativePath) = self::split($path);
+        list($baseRoot, $relativeBasePath) = self::split($basePath);
 
         // If the base path is given as absolute path and the path is already
         // relative, consider it to be relative to the given absolute path
@@ -574,7 +574,7 @@ final class Path
      */
     public static function isLocal(string $path): bool
     {
-        return '' !== $path && !str_contains($path, '://');
+        return '' !== $path && strpos($path, '://') === false;
     }
 
     /**
@@ -612,13 +612,14 @@ final class Path
      * );
      * // => null
      * ```
+     * @return string|null
      */
-    public static function getLongestCommonBasePath(string ...$paths): ?string
+    public static function getLongestCommonBasePath(string ...$paths)
     {
-        [$bpRoot, $basePath] = self::split(self::canonicalize(reset($paths)));
+        list($bpRoot, $basePath) = self::split(self::canonicalize(reset($paths)));
 
         for (next($paths); null !== key($paths) && '' !== $basePath; next($paths)) {
-            [$root, $path] = self::split(self::canonicalize(current($paths)));
+            list($root, $path) = self::split(self::canonicalize(current($paths)));
 
             // If we deal with different roots (e.g. C:/ vs. D:/), it's time
             // to quit
@@ -638,7 +639,7 @@ final class Path
 
                 // Prevent false positives for common prefixes
                 // see isBasePath()
-                if (str_starts_with($path.'/', $basePath.'/')) {
+                if (strncmp($path.'/', $basePath.'/', strlen($basePath.'/')) === 0) {
                     // next path
                     continue 2;
                 }
@@ -666,7 +667,7 @@ final class Path
             if (null === $finalPath) {
                 // For first part we keep slashes, like '/top', 'C:\' or 'phar://'
                 $finalPath = $path;
-                $wasScheme = str_contains($path, '://');
+                $wasScheme = strpos($path, '://') !== false;
                 continue;
             }
 
@@ -717,7 +718,7 @@ final class Path
         // Don't append a slash for the root "/", because then that root
         // won't be discovered as common prefix ("//" is not a prefix of
         // "/foobar/").
-        return str_starts_with($ofPath.'/', rtrim($basePath, '/').'/');
+        return strncmp($ofPath.'/', rtrim($basePath, '/').'/', strlen(rtrim($basePath, '/').'/')) === 0;
     }
 
     /**
@@ -786,7 +787,7 @@ final class Path
         $length = mb_strlen($path);
 
         // Remove and remember root directory
-        if (str_starts_with($path, '/')) {
+        if (strncmp($path, '/', strlen('/')) === 0) {
             $root .= '/';
             $path = $length > 1 ? mb_substr($path, 1) : '';
         } elseif ($length > 1 && ctype_alpha($path[0]) && ':' === $path[1]) {
